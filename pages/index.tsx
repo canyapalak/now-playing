@@ -78,10 +78,10 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className='py-5 px-10 md:px-20 lg:px-30 xl:px-48 font-comfortaa mb-5'>
+      <main className='py-5 px-10 md:px-20 lg:px-30 xl:px-48 font-comfortaa bg-black'>
         <div className='mb-20 w-full border-pink-700 border-2 rounded-lg p-3'>
           <img src={Logo} alt="Logo" className='w-40' /></div>
-        <div className='flex flex-row flex-wrap justify-evenly gap-6 border-pink-700 border-2 rounded-lg p-8'>
+        <div className='flex flex-row flex-wrap justify-evenly gap-6 border-pink-700 border-2 rounded-lg p-8 bg-black'>
           {allMovies.map(movie => (
             <div key={movie.id} className='items-center h[40vh] w-[20vh] bg-neutral-200
             rounded-xl shadow-sm shadow-neutral-700'>

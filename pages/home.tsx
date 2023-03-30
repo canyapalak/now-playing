@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import { ApolloClient, InMemoryCache, ApolloProvider, gql, useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Navbar from '@/components/navbar';
+import MoviePage from './[id]';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -93,9 +93,8 @@ useEffect(() => {
 
   return (
     <ApolloProvider client={client}>
-      <main className='py-5 px-10 md:px-20 lg:px-30 xl:px-48 font-comfortaa bg-black'>
-        <Navbar />
-        <div className='flex flex-row flex-wrap justify-evenly gap-6 border-pink-700 border-2 rounded-lg p-8 '>
+      <main >
+        <div className='flex flex-row flex-wrap justify-evenly gap-6 border-pink-700 border-2 rounded-lg p-8'>
           {allMovies?.map(movie => (
             <Link href={`/${movie.node.id}`} key={movie.node.id}>
             <div className='items-center h[40vh] w-[20vh] bg-neutral-200
@@ -109,12 +108,13 @@ useEffect(() => {
                   <p className='text-sm md:text-md'>{movie.node.rating}</p>
                 </div>
               </div>
-              <div className='p-1 text-center h-12'><h2 className='text-sm '>{movie.node.title}</h2></div>
+              <div className='p-1 text-center h-12'><h2 >{movie.node.title}</h2></div>
               </div>
               </Link>
           ))}
         </div>
       </main>
+      <MoviePage />
     </ApolloProvider>
   )
 }

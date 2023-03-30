@@ -11,7 +11,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        comfortaa: "comfortaa",
+        cabin: "cabin",
+        cabinbold: "cabinbold",
       },
     },
   },

@@ -19,6 +19,11 @@ a {
 }
 
 @font-face {
-  font-family: "comfortaa";
-  src: url("../public/assets/Comfortaa-Regular.ttf")
+  font-family: "cabin";
+  src: url("../public/assets/Cabin-Regular.ttf")
+}
+
+@font-face {
+  font-family: "cabinbold";
+  src: url("../public/assets/Cabin-Bold.ttf")
 }

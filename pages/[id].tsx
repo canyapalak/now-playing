@@ -28,7 +28,13 @@ const GET_MOVIE = gql`
         rating
         releaseDate
         credits {
-          cast {
+        crew {
+          job
+          value {
+            name
+          }
+        }
+        cast {
             character
             value {
               name
@@ -58,6 +64,12 @@ type MovieData = {
     rating: number;
     releaseDate: string;
     credits: {
+      crew: {
+        job: string;
+        value: {
+          name: string;
+        }
+      }
       cast: {
         character: string;
         value: {
@@ -136,33 +148,43 @@ export default function MoviePage() {
               </div>
               <p className="my-2 italic text-stone-400">{movieDetails?.tagline}</p>
               <p className="mt-2 mb-6">{movieDetails?.overview}</p>
+              <div className='mb-3'>
+                {movieDetails?.credits.crew
+                  .filter(crewPerson => crewPerson?.job === "Director")
+                  .map(crewPerson =>
+                    <div key={crewPerson?.value.name}>
+                      <p>Director: {crewPerson?.value.name}</p>
+                    </div>
+                  )}
+                {movieDetails?.credits.crew
+                  .filter(crewPerson => crewPerson?.job === "Writer")
+                  .map(crewPerson =>
+                    <div key={crewPerson?.value.name}>
+                      <p>Writer: {crewPerson?.value.name}</p>
+                    </div>
+                  )}
+              </div>
               <p className="my-1">Budget: ${movieDetails?.budget.toLocaleString()}</p>
               <p className="">Revenue: ${movieDetails?.revenue.toLocaleString()}</p>
-
-
-
-
             </div>
           </div>
-
-          <h2 className="text-xl font-bold mt-8 mb-4 text-center">Cast:</h2>
-
+          <h2 className="text-xl font-bold mt-4 mb-6 text-center">Cast:</h2>
           <div className="flex flex-row justify-center flex-wrap gap-8">
-            {movieDetails?.credits.cast.slice(0, 6).map((person) => (
-              <Link href={`https://www.imdb.com/name/${person.value.imdbID}/`} target="_blank">
-                <div key={person?.value.name} className="flex flex-col
+            {movieDetails?.credits.cast.slice(0, 6).map((castPerson) => (
+              <Link href={`https://www.imdb.com/name/${castPerson?.value.imdbID}/`} target="_blank">
+                <div key={castPerson?.value.name} className="flex flex-col
                 items-center h-[18rem] w-[8rem] bg-neutral-200
               rounded-lg shadow-sm shadow-neutral-700">
 
                   <div className='h-[15rem]'>
                     <img
-                      src={person?.value.profilePicture}
-                      alt={person?.value.name}
+                      src={castPerson?.value.profilePicture}
+                      alt={castPerson?.value.name}
                       className="w-[14rem] rounded-t-md"
                     />
                     <div className='h-[14-rem] bg-neutral-200 p-2 rounded-b-md break-normal'>
-                      <p className="font-cabinbold text-sm font-bold text-black">{person?.value.name}</p>
-                      <p className="text-sm mt-2 text-neutral-600 ">{person?.character}</p>
+                      <p className="font-cabinbold text-sm font-bold text-black">{castPerson?.value.name}</p>
+                      <p className="text-sm mt-2 text-neutral-600 ">{castPerson?.character}</p>
                     </div>
                   </div>
                 </div>

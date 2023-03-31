@@ -9,11 +9,11 @@ const inter = Inter({ subsets: ['latin'] })
 
 type QueryData = {
   movies: {
-    popular: PopularMovies;
+    nowPlaying: NowPlaying;
   };
 };
 
-type PopularMovies = {
+type NowPlaying = {
   totalCount: number;
   pageInfo: PageInfo;
   edges: MovieNode[];
@@ -47,32 +47,32 @@ const client = new ApolloClient({
 });
 
 const GET_MOVIES = gql`
-    query {
-      movies {
-        popular {
-          totalCount
-          pageInfo {
-            endCursor
-            hasNextPage
-            hasPreviousPage
-            startCursor
-            __typename
+  query($first: Int, $after: String) {
+    movies {
+      nowPlaying(first: $first, after: $after) {
+        totalCount
+        pageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          __typename
+        }
+        edges {
+          node {
+            id
+            rating
+            title
+            poster(size: W500)
           }
-          edges {
-            node {
-              id
-              rating
-              title
-              poster(size: W500)
-            }
-            __typename
-          }
+          __typename
         }
       }
     }
-  `;
+  }
+`;
 
-export default function Landing() {
+export default function Home() {
 
 
   const [allMovies, setAllMovies] = useState<Movie[]>([]);
@@ -86,8 +86,8 @@ export default function Landing() {
   useEffect(() => {
     client.query<QueryData>({ query: GET_MOVIES })
       .then(result => {
-        setAllMovies(result.data.movies.popular.edges);
-        setPageInfo(result.data.movies.popular.pageInfo);
+        setAllMovies(result.data.movies.nowPlaying.edges);
+        setPageInfo(result.data.movies.nowPlaying.pageInfo);
       })
       .catch(error => console.log(error))
     console.log('allMovies', allMovies)

@@ -92,6 +92,8 @@ export default function MoviePage() {
   const { id } = router.query;
   const [movieDetails, setMovieDetails] = useState<MovieData>();
 
+  const CastPlaceholder = "/assets/avatar-placeholder.png"
+
   const { data, loading, error } = useQuery<MovieData, MovieId>(GET_MOVIE, {
     client: client,
     variables: { id: id as string },
@@ -126,7 +128,7 @@ export default function MoviePage() {
 
               <div className='flex flex-row gap-3'>
                 {movieDetails?.genres.map((genre) => (
-                  <span className='px-2 py-1 bg-neutral-200 rounded-md'><p className='text-black'>{genre.name}</p></span>
+                  <span className='px-2 py-1 bg-neutral-200 rounded-md' key={genre.name}><p className='text-black'>{genre.name}</p></span>
                 ))}
               </div>
               <div className='mt-3 mb-4 flex flex-row gap-3'>
@@ -151,14 +153,14 @@ export default function MoviePage() {
               <div className='mb-3'>
                 {movieDetails?.credits.crew
                   .filter(crewPerson => crewPerson?.job === "Director")
-                  .map(crewPerson =>
+                  .slice(0, 1).map(crewPerson =>
                     <div key={crewPerson?.value.name}>
                       <p>Director: {crewPerson?.value.name}</p>
                     </div>
                   )}
                 {movieDetails?.credits.crew
                   .filter(crewPerson => crewPerson?.job === "Writer")
-                  .map(crewPerson =>
+                  .slice(0, 1).map(crewPerson =>
                     <div key={crewPerson?.value.name}>
                       <p>Writer: {crewPerson?.value.name}</p>
                     </div>
@@ -177,11 +179,18 @@ export default function MoviePage() {
               rounded-lg shadow-sm shadow-neutral-700">
 
                   <div className='h-[15rem]'>
-                    <img
-                      src={castPerson?.value.profilePicture}
-                      alt={castPerson?.value.name}
-                      className="w-[14rem] rounded-t-md"
-                    />
+                    {castPerson?.value.profilePicture === null ? (
+                      <img
+                        src={CastPlaceholder}
+                        alt={castPerson?.value.name}
+                        className="w-[14rem] rounded-t-md"
+                      />) : (
+                      <img
+                        src={castPerson?.value.profilePicture}
+                        alt={castPerson?.value.name}
+                        className="w-[14rem] rounded-t-md"
+                      />
+                    )}
                     <div className='h-[14-rem] bg-neutral-200 p-2 rounded-b-md break-normal'>
                       <p className="font-cabinbold text-sm font-bold text-black">{castPerson?.value.name}</p>
                       <p className="text-sm mt-2 text-neutral-600 ">{castPerson?.character}</p>

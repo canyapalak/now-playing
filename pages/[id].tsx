@@ -22,6 +22,9 @@ const GET_MOVIE = gql`
         originalLanguage
         overview
         poster (size: W500)
+        externalIds {
+        imdb
+        }
         genres {
           name
         }
@@ -57,7 +60,10 @@ type MovieData = {
     revenue: number;
     budget: number;
     tagline: string;
-    originalLanguage: string
+    originalLanguage: string;
+    externalIds: {
+      imdb: string;
+    }
     genres: {
       name: string;
     }[];
@@ -93,6 +99,7 @@ export default function MoviePage() {
   const [movieDetails, setMovieDetails] = useState<MovieData>();
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const Spinner: string = "/assets/spinner.gif"
+  const ImdbButton: string = "/assets/imdb-button.png"
 
   const CastPlaceholder = "/assets/avatar-placeholder.png"
 
@@ -164,6 +171,8 @@ export default function MoviePage() {
                   <div>
                     <p className="my-2">{getLanguageName(movieDetails?.originalLanguage)}</p>
                   </div>
+                  <Link href={`https://www.imdb.com/title/${movieDetails?.externalIds.imdb}/`} target="_blank">
+                    <div><img src={ImdbButton} alt="Imdb" className='w-12 my-2 hover:opacity-70'></img></div></Link>
                 </div>
                 <p className="my-2 italic text-stone-400">{movieDetails?.tagline}</p>
                 <p className="mt-2 mb-6">{movieDetails?.overview}</p>

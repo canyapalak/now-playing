@@ -47,9 +47,9 @@ const client = new ApolloClient({
 });
 
 const GET_MOVIES = gql`
-  query($first: Int, $after: String) {
+  query {
     movies {
-      nowPlaying(first: $first, after: $after) {
+      nowPlaying {
         totalCount
         pageInfo {
           endCursor
@@ -114,7 +114,6 @@ export default function Home() {
           ))}
         </div>
       </main>
-      <MoviePage />
     </ApolloProvider>
   )
 }

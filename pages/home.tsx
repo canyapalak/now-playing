@@ -7,19 +7,19 @@ import MoviePage from './[id]';
 
 const inter = Inter({ subsets: ['latin'] })
 
-type QueryData = {
+interface QueryData {
   movies: {
     nowPlaying: NowPlaying;
   };
 };
 
-type NowPlaying = {
+interface NowPlaying {
   totalCount: number;
   pageInfo: PageInfo;
   edges: MovieNode[];
 };
 
-type PageInfo = {
+interface PageInfo {
   endCursor: string | null;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
@@ -27,12 +27,12 @@ type PageInfo = {
 };
 
 
-type MovieNode = {
+interface MovieNode {
   node: Movie;
 };
 
 
-type Movie = {
+interface Movie {
   id: string;
   rating: number;
   title: string;
@@ -74,24 +74,17 @@ const GET_MOVIES = gql`
 
 export default function Home() {
 
-
   const [allMovies, setAllMovies] = useState<Movie[]>([]);
-  const [pageInfo, setPageInfo] = useState({
-    endCursor: null,
-    hasNextPage: false,
-    hasPreviousPage: false,
-    startCursor: null,
-  });
+
 
   useEffect(() => {
+
     client.query<QueryData>({ query: GET_MOVIES })
       .then(result => {
         setAllMovies(result.data.movies.nowPlaying.edges);
-        setPageInfo(result.data.movies.nowPlaying.pageInfo);
       })
       .catch(error => console.log(error))
     console.log('allMovies', allMovies)
-    console.log('pageInfo :>> ', pageInfo);
   }, []);
 
 

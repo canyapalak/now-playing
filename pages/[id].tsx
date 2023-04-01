@@ -91,20 +91,35 @@ export default function MoviePage() {
   const router = useRouter();
   const { id } = router.query;
   const [movieDetails, setMovieDetails] = useState<MovieData>();
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const Spinner: string = "/assets/spinner.gif"
 
   const CastPlaceholder = "/assets/avatar-placeholder.png"
 
-  const { data, loading, error } = useQuery<MovieData, MovieId>(GET_MOVIE, {
-    client: client,
-    variables: { id: id as string },
-    onCompleted: (data) => setMovieDetails(data.movies.movie),
-  });
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
-  console.log('error :>> ', error);
-  console.log('loading', loading)
 
-  console.log('movieDetails', movieDetails)
+  useEffect(() => {
+    setIsLoading(true);
+    const fetchData = async () => {
+      try {
+        const { data } = await client.query<MovieData, MovieId>({
+          query: GET_MOVIE,
+          variables: { id: id as string },
+        });
+        setMovieDetails(data.movies.movie);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 500);
+      } catch (error) {
+        console.error(error);
+      } finally {
+      }
+    };
+    fetchData();
+  }, [id]);
+
+  // if (!movieDetails) return <p className='text-white'>No movie details found.</p>;
+  console.log('movieDetails', movieDetails);
+
 
   function getLanguageName(languageCode: string) {
     return languageCodes[languageCode] || languageCode;
@@ -113,94 +128,97 @@ export default function MoviePage() {
   return (
     <ApolloProvider client={client}>
       <main className='text-neutral-200'>
-        <div className="flex flex-col border-pink-700 border-2 rounded-lg p-8">
-
-          <div className='flex flex-col md:flex-row'>
-            <div className='flex-shrink-0 md:w-80 md:h-150 w-60 h-120 sm:mx-auto xs:mx-auto'>
-              <img
-                src={movieDetails?.poster}
-                alt={movieDetails?.title}
-                className="rounded-xl shadow-md object-cover flex-grow"
-              />
-            </div>
-            <div className="flex flex-col ml-10">
-              <h1 className="text-3xl font-bold my-5 text-amber-200">{movieDetails?.title}</h1>
-
-              <div className='flex flex-row gap-3'>
-                {movieDetails?.genres.map((genre) => (
-                  <span className='px-2 py-1 bg-neutral-200 rounded-md' key={genre.name}><p className='text-black'>{genre.name}</p></span>
-                ))}
+        {isLoading ? (
+          <img src={Spinner} alt="Spinner" className="w-7 mx-auto mt-40" />
+        ) : (
+          <div className="flex flex-col border-pink-700 border-2 rounded-lg p-8">
+            <div className='flex flex-col md:flex-row'>
+              <div className='flex-shrink-0 md:w-80 md:h-150 w-50 h-90 mx-auto '>
+                <img
+                  src={movieDetails?.poster}
+                  alt={movieDetails?.title}
+                  className="rounded-xl shadow-md object-cover flex-grow mx-auto"
+                />
               </div>
-              <div className='mt-3 mb-4 flex flex-row gap-3'>
-                <div className={`rounded-full border-gray-600
+              <div className="flex flex-col ml-2 md:ml-5 lg:ml-10">
+                <h1 className="text-3xl font-bold my-5 text-amber-200">{movieDetails?.title}</h1>
+
+                <div className='flex flex-row gap-3 flex-wrap'>
+                  {movieDetails?.genres.map((genre) => (
+                    <span className='px-2 py-1 bg-neutral-200 rounded-md' key={genre.name}><p className='text-black'>{genre.name}</p></span>
+                  ))}
+                </div>
+                <div className='mt-3 mb-4 flex flex-row gap-3 flex-wrap'>
+                  <div className={`rounded-full border-gray-600
                   border-2 flex justify-center align-middle w-11 h-11
                   ${movieDetails?.rating < 5 ? 'bg-red-500' : movieDetails?.rating < 6 ? 'bg-orange-500' : movieDetails?.rating < 7 ?
-                    'bg-yellow-500' : movieDetails?.rating < 8 ? 'bg-teal-500' : 'bg-lime-500'}`}>
-                  <p className='items-center my-auto text-black'>{movieDetails?.rating.toFixed(1)}</p>
+                      'bg-yellow-500' : movieDetails?.rating < 8 ? 'bg-teal-500' : 'bg-lime-500'}`}>
+                    <p className='items-center my-auto text-black'>{movieDetails?.rating.toFixed(1)}</p>
+                  </div>
+                  <div>
+                    <p className="my-2">{new Date(movieDetails?.releaseDate).toLocaleDateString()}</p>
+                  </div>
+                  <div>
+                    <p className="my-2">{movieDetails?.runtime} min</p>
+                  </div>
+                  <div>
+                    <p className="my-2">{getLanguageName(movieDetails?.originalLanguage)}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="my-2">{new Date(movieDetails?.releaseDate).toLocaleDateString()}</p>
+                <p className="my-2 italic text-stone-400">{movieDetails?.tagline}</p>
+                <p className="mt-2 mb-6">{movieDetails?.overview}</p>
+                <div className='mb-3'>
+                  {movieDetails?.credits.crew
+                    .filter(crewPerson => crewPerson?.job === "Director")
+                    .slice(0, 1).map(crewPerson =>
+                      <div key={crewPerson?.value.name}>
+                        <p>Director: {crewPerson?.value.name}</p>
+                      </div>
+                    )}
+                  {movieDetails?.credits.crew
+                    .filter(crewPerson => crewPerson?.job === "Writer")
+                    .slice(0, 1).map(crewPerson =>
+                      <div key={crewPerson?.value.name}>
+                        <p>Writer: {crewPerson?.value.name}</p>
+                      </div>
+                    )}
                 </div>
-                <div>
-                  <p className="my-2">{movieDetails?.runtime} min</p>
-                </div>
-                <div>
-                  <p className="my-2">{getLanguageName(movieDetails?.originalLanguage)}</p>
-                </div>
+                <p className="my-1">Budget: ${movieDetails?.budget.toLocaleString()}</p>
+                <p className="">Revenue: ${movieDetails?.revenue.toLocaleString()}</p>
               </div>
-              <p className="my-2 italic text-stone-400">{movieDetails?.tagline}</p>
-              <p className="mt-2 mb-6">{movieDetails?.overview}</p>
-              <div className='mb-3'>
-                {movieDetails?.credits.crew
-                  .filter(crewPerson => crewPerson?.job === "Director")
-                  .slice(0, 1).map(crewPerson =>
-                    <div key={crewPerson?.value.name}>
-                      <p>Director: {crewPerson?.value.name}</p>
-                    </div>
-                  )}
-                {movieDetails?.credits.crew
-                  .filter(crewPerson => crewPerson?.job === "Writer")
-                  .slice(0, 1).map(crewPerson =>
-                    <div key={crewPerson?.value.name}>
-                      <p>Writer: {crewPerson?.value.name}</p>
-                    </div>
-                  )}
-              </div>
-              <p className="my-1">Budget: ${movieDetails?.budget.toLocaleString()}</p>
-              <p className="">Revenue: ${movieDetails?.revenue.toLocaleString()}</p>
             </div>
-          </div>
-          <h2 className="text-xl font-bold mt-4 mb-6 text-center">Cast:</h2>
-          <div className="flex flex-row justify-center flex-wrap gap-8">
-            {movieDetails?.credits.cast.slice(0, 6).map((castPerson) => (
-              <Link href={`https://www.imdb.com/name/${castPerson?.value.imdbID}/`} target="_blank">
-                <div key={castPerson?.value.name} className="flex flex-col
+            <h2 className="text-xl font-bold mt-4 mb-6 text-center">Cast:</h2>
+            <div className="flex flex-row justify-center flex-wrap gap-8">
+              {movieDetails?.credits.cast.slice(0, 6).map((castPerson) => (
+                <Link href={`https://www.imdb.com/name/${castPerson?.value.imdbID}/`} target="_blank">
+                  <div key={castPerson?.value.name} className="flex flex-col
                 items-center h-[18rem] w-[8rem] bg-neutral-200
               rounded-lg shadow-sm shadow-neutral-700">
 
-                  <div className='h-[15rem]'>
-                    {castPerson?.value.profilePicture === null ? (
-                      <img
-                        src={CastPlaceholder}
-                        alt={castPerson?.value.name}
-                        className="w-[14rem] rounded-t-md"
-                      />) : (
-                      <img
-                        src={castPerson?.value.profilePicture}
-                        alt={castPerson?.value.name}
-                        className="w-[14rem] rounded-t-md"
-                      />
-                    )}
-                    <div className='h-[14-rem] bg-neutral-200 p-2 rounded-b-md break-normal'>
-                      <p className="font-cabinbold text-sm font-bold text-black">{castPerson?.value.name}</p>
-                      <p className="text-sm mt-2 text-neutral-600 ">{castPerson?.character}</p>
+                    <div className='h-[15rem]'>
+                      {castPerson?.value.profilePicture === null ? (
+                        <img
+                          src={CastPlaceholder}
+                          alt={castPerson?.value.name}
+                          className="w-[14rem] rounded-t-md"
+                        />) : (
+                        <img
+                          src={castPerson?.value.profilePicture}
+                          alt={castPerson?.value.name}
+                          className="w-[14rem] rounded-t-md"
+                        />
+                      )}
+                      <div className='h-[14-rem] bg-neutral-200 p-2 rounded-b-md break-normal'>
+                        <p className="font-cabinbold text-sm font-bold text-black">{castPerson?.value.name}</p>
+                        <p className="text-sm mt-2 text-neutral-600 ">{castPerson?.character}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </ApolloProvider >
   )

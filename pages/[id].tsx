@@ -52,38 +52,40 @@ const GET_MOVIE = gql`
 `;
 
 type MovieData = {
-  movie: {
-    title: string;
-    runtime: number;
-    overview: string;
-    poster: string;
-    revenue: number;
-    budget: number;
-    tagline: string;
-    originalLanguage: string;
-    externalIds: {
-      imdb: string;
-    }
-    genres: {
-      name: string;
-    }[];
-    rating: number;
-    releaseDate: string;
-    credits: {
-      crew: {
-        job: string;
-        value: {
-          name: string;
-        }
+  movies: {
+    movie: {
+      title: string;
+      runtime: number;
+      overview: string;
+      poster: string;
+      revenue: number;
+      budget: number;
+      tagline: string;
+      originalLanguage: string;
+      externalIds: {
+        imdb: string;
       }
-      cast: {
-        character: string;
-        value: {
-          name: string;
-          imdbID: string;
-          profilePicture: string;
-        };
+      genres: {
+        name: string;
       }[];
+      rating: number;
+      releaseDate: string;
+      credits: {
+        crew: {
+          job: string;
+          value: {
+            name: string;
+          }
+        }
+        cast: {
+          character: string;
+          value: {
+            name: string;
+            imdbID: string;
+            profilePicture: string;
+          };
+        }[];
+      };
     };
   };
 };

@@ -1,45 +1,39 @@
-import Head from 'next/head'
-import { Inter } from 'next/font/google'
+import Head from 'next/head';
+import { Inter } from 'next/font/google';
 import { ApolloClient, InMemoryCache, ApolloProvider, gql, useQuery } from '@apollo/client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import MoviePage from './[id]';
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] });
 
 interface QueryData {
   movies: {
     nowPlaying: NowPlaying;
   };
-};
+}
 
 interface NowPlaying {
   totalCount: number;
   pageInfo: PageInfo;
   edges: MovieNode[];
-};
+}
 
 interface PageInfo {
   endCursor: string | null;
   hasNextPage: boolean;
   hasPreviousPage: boolean;
   startCursor: string | null;
-};
+}
 
 
 interface MovieNode {
-  node: Movie;
-};
-
-
-interface Movie {
-  id: string;
-  rating: number;
-  title: string;
-  poster: string;
-};
-
-
+  node: {
+    id: string;
+    rating: number;
+    title: string;
+    poster: string;
+  };
+}
 
 const client = new ApolloClient({
   uri: 'https://tmdb.apps.quintero.io/',
@@ -74,7 +68,7 @@ const GET_MOVIES = gql`
 
 export default function Home() {
 
-  const [allMovies, setAllMovies] = useState<Movie[]>([]);
+  const [allMovies, setAllMovies] = useState<MovieNode[]>([]);
 
 
   useEffect(() => {

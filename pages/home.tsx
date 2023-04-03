@@ -78,8 +78,9 @@ export default function Home() {
         setAllMovies(result.data.movies.nowPlaying.edges);
       })
       .catch(error => console.log(error))
-    console.log('allMovies', allMovies)
   }, []);
+
+  console.log('allMovies', allMovies)
 
 
   return (

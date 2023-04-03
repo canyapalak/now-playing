@@ -1,4 +1,4 @@
-export const languageCodes = {
+export const languages = {
     "aa": "Afar",
     "ab": "Abkhazian",
     "ae": "Avestan",
@@ -184,3 +184,5 @@ export const languageCodes = {
     "zh": "Chinese",
     "zu": "Zulu"
 }
+
+export const lang = (code ) => languages[code]

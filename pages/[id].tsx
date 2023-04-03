@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useQuery, ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client';
 import { useState, useEffect } from 'react';
-import { languageCodes } from "../data/language-codes.js"
+import { lang } from "../data/language-codes"
 import Link from 'next/link.js';
 
 
@@ -51,43 +51,92 @@ const GET_MOVIE = gql`
   }
 `;
 
-type MovieData = {
+// interface MovieData {
+//   movies: Movies;
+// }
+// interface Movies {
+//   movie: Movie;
+// }
+
+// interface Movie {
+//   title: string;
+//   runtime: number;
+//   overview: string;
+//   poster: string;
+//   revenue: number;
+//   budget: number;
+//   tagline: string;
+//   originalLanguage: string;
+//   externalIds: {
+//     imdb: string;
+//   }
+//   genres: {
+//     name: string;
+//   }[];
+//   rating: number;
+//   releaseDate: string;
+//   credits: Credits {
+// }
+
+// interface Credits {
+//   crew: {
+//     job: string;
+//     value: {
+//       name: string;
+//     }
+//   }[];
+//   cast: {
+//     character: string;
+//     value: {
+//       name: string;
+//       imdbID: string;
+//       profilePicture: string;
+//     };
+//   }[];
+// }
+
+type MovieDataQery = {
   movies: {
-    movie: {
-      title: string;
-      runtime: number;
-      overview: string;
-      poster: string;
-      revenue: number;
-      budget: number;
-      tagline: string;
-      originalLanguage: string;
-      externalIds: {
-        imdb: string;
-      }
-      genres: {
-        name: string;
-      }[];
-      rating: number;
-      releaseDate: string;
-      credits: {
-        crew: {
-          job: string;
-          value: {
-            name: string;
-          }
-        }
-        cast: {
-          character: string;
-          value: {
-            name: string;
-            imdbID: string;
-            profilePicture: string;
-          };
-        }[];
-      };
-    };
+    movie: MovieData
   };
+};
+
+
+type MovieData = {
+
+  title: string;
+  runtime: number;
+  overview: string;
+  poster: string;
+  revenue: number;
+  budget: number;
+  tagline: string;
+  originalLanguage: string;
+  externalIds: {
+    imdb: string;
+  }
+  genres: {
+    name: string;
+  }[];
+  rating: number;
+  releaseDate: string;
+  credits: {
+    crew: {
+      job: string;
+      value: {
+        name: string;
+      }
+    }[]
+    cast: {
+      character: string;
+      value: {
+        name: string;
+        imdbID: string;
+        profilePicture: string;
+      };
+    }[];
+  };
+
 };
 
 interface MovieId {
@@ -102,7 +151,6 @@ export default function MoviePage() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const Spinner: string = "/assets/spinner.gif"
   const ImdbButton: string = "/assets/imdb-button.png"
-
   const CastPlaceholder = "/assets/avatar-placeholder.png"
 
 
@@ -110,11 +158,11 @@ export default function MoviePage() {
     setIsLoading(true);
     const fetchData = async () => {
       try {
-        const { data } = await client.query<MovieData, MovieId>({
+        const { data } = await client.query<MovieDataQery, MovieId>({
           query: GET_MOVIE,
           variables: { id: id as string },
         });
-        setMovieDetails(data.movies.movie);
+        data?.movies?.movie && setMovieDetails(data.movies.movie);
         setTimeout(() => {
           setIsLoading(false);
         }, 500);
@@ -130,14 +178,15 @@ export default function MoviePage() {
   console.log('movieDetails', movieDetails);
 
 
-  function getLanguageName(languageCode: string) {
-    return languageCodes[languageCode] || languageCode;
+  function getLanguageName(languageCode: string): string {
+    const language = lang(languageCode) as string
+    return language || languageCode;
   }
 
   return (
     <ApolloProvider client={client}>
       <main className='text-neutral-200'>
-        {isLoading ? (
+        {!movieDetails ? (
           <img src={Spinner} alt="Spinner" className="w-7 mx-auto mt-40" />
         ) : (
           <div className="flex flex-col border-pink-700 border-2 rounded-lg p-8">
@@ -153,8 +202,8 @@ export default function MoviePage() {
                 <h1 className="text-3xl font-bold my-5 text-amber-200">{movieDetails?.title}</h1>
 
                 <div className='flex flex-row gap-3 flex-wrap'>
-                  {movieDetails?.genres.map((genre) => (
-                    <span className='px-2 py-1 bg-neutral-200 rounded-md' key={genre.name}><p className='text-black'>{genre.name}</p></span>
+                  {movieDetails?.genres?.map((genre, index) => (
+                    <span className='px-2 py-1 bg-neutral-200 rounded-md' key={index}><p className='text-black'>{genre.name}</p></span>
                   ))}
                 </div>
                 <div className='mt-3 mb-4 flex flex-row gap-3 flex-wrap'>
@@ -181,15 +230,15 @@ export default function MoviePage() {
                 <div className='mb-3'>
                   {movieDetails?.credits.crew
                     .filter(crewPerson => crewPerson?.job === "Director")
-                    .slice(0, 1).map(crewPerson =>
-                      <div key={crewPerson?.value.name}>
+                    .slice(0, 1).map((crewPerson, index) =>
+                      <div key={index}>
                         <p>Director: {crewPerson?.value.name}</p>
                       </div>
                     )}
                   {movieDetails?.credits.crew
                     .filter(crewPerson => crewPerson?.job === "Writer")
-                    .slice(0, 1).map(crewPerson =>
-                      <div key={crewPerson?.value.name}>
+                    .slice(0, 1).map((crewPerson, index) =>
+                      <div key={index}>
                         <p>Writer: {crewPerson?.value.name}</p>
                       </div>
                     )}
@@ -200,9 +249,9 @@ export default function MoviePage() {
             </div>
             <h2 className="text-xl font-bold mt-4 mb-6 text-center">Cast:</h2>
             <div className="flex flex-row justify-center flex-wrap gap-8">
-              {movieDetails?.credits.cast.slice(0, 6).map((castPerson) => (
-                <Link href={`https://www.imdb.com/name/${castPerson?.value.imdbID}/`} target="_blank">
-                  <div key={castPerson?.value.name} className="flex flex-col
+              {movieDetails?.credits.cast.slice(0, 6).map((castPerson, index) => (
+                <Link href={`https://www.imdb.com/name/${castPerson?.value.imdbID}/`} key={index} target="_blank">
+                  <div className="flex flex-col
                 items-center h-[18rem] w-[8rem] bg-neutral-200
               rounded-lg shadow-sm shadow-neutral-700">
 
@@ -227,8 +276,11 @@ export default function MoviePage() {
                   </div>
                 </Link>
               ))}
+
             </div>
+
           </div>
+
         )}
       </main>
     </ApolloProvider >

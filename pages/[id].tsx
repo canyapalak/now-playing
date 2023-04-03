@@ -51,50 +51,6 @@ const GET_MOVIE = gql`
   }
 `;
 
-// interface MovieData {
-//   movies: Movies;
-// }
-// interface Movies {
-//   movie: Movie;
-// }
-
-// interface Movie {
-//   title: string;
-//   runtime: number;
-//   overview: string;
-//   poster: string;
-//   revenue: number;
-//   budget: number;
-//   tagline: string;
-//   originalLanguage: string;
-//   externalIds: {
-//     imdb: string;
-//   }
-//   genres: {
-//     name: string;
-//   }[];
-//   rating: number;
-//   releaseDate: string;
-//   credits: Credits {
-// }
-
-// interface Credits {
-//   crew: {
-//     job: string;
-//     value: {
-//       name: string;
-//     }
-//   }[];
-//   cast: {
-//     character: string;
-//     value: {
-//       name: string;
-//       imdbID: string;
-//       profilePicture: string;
-//     };
-//   }[];
-// }
-
 type MovieDataQery = {
   movies: {
     movie: MovieData
@@ -148,14 +104,12 @@ export default function MoviePage() {
   const router = useRouter();
   const { id } = router.query;
   const [movieDetails, setMovieDetails] = useState<MovieData>();
-  const [isLoading, setIsLoading] = useState<boolean>(false)
   const Spinner: string = "/assets/spinner.gif"
   const ImdbButton: string = "/assets/imdb-button.png"
   const CastPlaceholder = "/assets/avatar-placeholder.png"
 
 
   useEffect(() => {
-    setIsLoading(true);
     const fetchData = async () => {
       try {
         const { data } = await client.query<MovieDataQery, MovieId>({
@@ -163,9 +117,6 @@ export default function MoviePage() {
           variables: { id: id as string },
         });
         data?.movies?.movie && setMovieDetails(data.movies.movie);
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 500);
       } catch (error) {
         console.error(error);
       } finally {
